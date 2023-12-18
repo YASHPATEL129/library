@@ -29,6 +29,6 @@ public class SignUpParam {
     @ValidPassword
     private String password;
 
-
+    @NotBlank
     private String confirmPassword;
 }
