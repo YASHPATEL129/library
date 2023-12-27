@@ -1,11 +1,6 @@
 package com.library.consts;
 
-public interface Message {
-
+public interface ErrorKeys {
 
     String SERVER_ERROR = "server.error";
-
-    String SUCCESS = "success";
-
-
 }

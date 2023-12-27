@@ -7,7 +7,7 @@ import org.hibernate.validator.internal.constraintvalidators.bv.PatternValidator
 
 import java.lang.annotation.*;
 
-@Constraint(validatedBy = PatternValidator.class)
+@Constraint(validatedBy = PasswordValidator.class)
 @Documented
 @Target({ElementType.TYPE , ElementType.FIELD ,ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

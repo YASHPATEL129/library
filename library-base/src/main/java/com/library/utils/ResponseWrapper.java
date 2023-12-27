@@ -1,5 +1,6 @@
 package com.library.utils;
 
+import com.library.consts.Message;
 import com.library.pojo.response.Error;
 import com.library.pojo.response.ResponseData;
 import com.library.pojo.response.Success;
@@ -26,7 +27,7 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return false;
+        return true;
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
                 int status = Integer.parseInt(obj.get("status").toString());
                 if (status < 200 || status >=300){
                     Error<?> err = new Error<>();
-//                    err.setMessage(messageUtil.getMessage());
+                    err.setMessage(messageUtil.getMessage(Message.SERVER_ERROR ,null , locale));
                 }
             }
         }
