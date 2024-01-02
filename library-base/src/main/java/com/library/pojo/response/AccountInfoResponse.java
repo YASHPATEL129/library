@@ -5,14 +5,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class AuthResponse {
+public class AccountInfoResponse {
 
-    String accessToken;
-    String refreshToken;
-    String deviceToken;
-    String email;
     String userName;
     String firstName;
     String lastName;
+    String email;
     String contact;
 }

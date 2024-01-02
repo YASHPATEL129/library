@@ -1,5 +1,7 @@
 package com.library.service.exception;
 
+import com.library.consts.ErrorKeys;
+import com.library.consts.Message;
 import com.library.pojo.response.Error;
 import com.library.pojo.response.ResponseData;
 import org.springframework.http.HttpStatus;
@@ -22,5 +24,21 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         responseData.setMessageCode(ex.getMessageCode());
         responseData.setError(ex.getError());
         return buildResponse(responseData , HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public final ResponseEntity<Object> handleInvalidCredentials(InvalidCredentialsException ex, WebRequest request){
+        Error<?> responseData = new Error<>();
+        responseData.setMessageCode(ex.getMessage());
+        responseData.setError(ex.getError());
+        return buildResponse(responseData , HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnauthorisedException.class)
+    public final ResponseEntity<Object> handleUnauthorisedException(InvalidCredentialsException ex, WebRequest request){
+        Error<?> responseData = new Error<>();
+        responseData.setMessageCode(Message.UNAUTHORIZED);
+        responseData.setError(ErrorKeys.UNAUTHORIZED);
+        return buildResponse(responseData , HttpStatus.UNAUTHORIZED);
     }
 }
