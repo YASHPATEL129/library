@@ -41,4 +41,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         responseData.setError(ErrorKeys.UNAUTHORIZED);
         return buildResponse(responseData , HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public final ResponseEntity<Object> handForbiddenException(ForbiddenException ex, WebRequest request){
+        Error<?> responseData = new Error<>();
+        responseData.setMessageCode(ex.getMessage());
+        responseData.setError((ex.getError() != null) ? ex.getError() : HttpStatus.FORBIDDEN.name());
+        responseData.setArgs(ex.getArgs());
+        return buildResponse(responseData , HttpStatus.FORBIDDEN);
+    }
 }

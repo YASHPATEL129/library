@@ -8,11 +8,13 @@ import com.library.enums.DeviceTypes;
 import com.library.pojo.response.AccountInfoResponse;
 import com.library.pojo.response.AuthResponse;
 import com.library.repository.UserRepository;
+import com.library.service.exception.ForbiddenException;
 import com.library.service.exception.InvalidCredentialsException;
 import com.library.service.exception.ValidationException;
 import com.library.service.hashRepository.UserSessionTrackerRepo;
 import com.library.service.helper.SystemHelper;
 import com.library.service.model.hashes.UserSessionTracker;
+import com.library.service.model.params.ChangePasswordParam;
 import com.library.service.model.params.SignInParam;
 import com.library.service.model.params.SignUpParam;
 import com.library.service.service.AccountAndService;
@@ -27,6 +29,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 
 
 @Service
@@ -46,6 +49,7 @@ public class AccountAndServiceImpl extends BaseService implements AccountAndServ
 
     @Autowired
     private UserSessionTrackerRepo userSessionTrackerRepo;
+
 
     @Override
     public void signUp(SignUpParam signUpParam, HttpServletRequest request, HttpServletResponse response) {
@@ -94,6 +98,22 @@ public class AccountAndServiceImpl extends BaseService implements AccountAndServ
 
     }
 
+    @Override
+    public void changePassword(ChangePasswordParam changePasswordParam, HttpServletRequest request, HttpServletResponse response) {
+        User user = userRepository.findByEmail(currentSession.getEmail());
+        if (StringUtils.equals(changePasswordParam.getCurrentPassword(), changePasswordParam.getNewPassword())) {
+            throw new ForbiddenException(Message.SAME_PASSWORD, ErrorKeys.SAME_PASSWORD);
+        }
+        validateCurrentPassword(changePasswordParam.getCurrentPassword(), user.getPassword());
+        try {
+            user.setPassword(passwordEncoder.encode(changePasswordParam.getNewPassword()));
+            userRepository.save(user);
+        }catch (Exception e) {
+            throw new RuntimeException();
+        }
+
+    }
+
     private void configureSession(String email , String deviceVerificationToken , String deviceType){
         UserSessionTracker session = userSessionTrackerRepo.getSession(email , deviceType);
             session = new UserSessionTracker();
@@ -107,5 +127,9 @@ public class AccountAndServiceImpl extends BaseService implements AccountAndServ
         userSessionTrackerRepo.save(session);
     }
 
-
+    private void validateCurrentPassword(String rawPassword , String password) {
+        if (!passwordEncoder.matches(rawPassword, password)) {
+            throw new ForbiddenException(Message.INCORRECT_CURRENT_PASSWORD, ErrorKeys.INCORRECT_CURRENT_PASSWORD);
+        }
+    }
 }

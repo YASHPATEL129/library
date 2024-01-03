@@ -12,4 +12,11 @@ public interface Message {
     String UNAUTHORIZED = "unauthorised";
 
     String GET_SUCCESSFUL = "get.successful";
+
+    String PASSWORD_CHANGE_SUCCESSFUL = "password.change.successful";
+
+    String SAME_PASSWORD = "same.password";
+
+    String INCORRECT_CURRENT_PASSWORD = "incorrect.current.password";
+
 }
