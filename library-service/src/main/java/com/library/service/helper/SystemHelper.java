@@ -4,6 +4,7 @@ import com.library.consts.AppConfigs;
 import com.library.service.hashRepository.UserSessionTrackerRepo;
 import com.library.service.model.hashes.UserSessionTracker;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,6 +13,9 @@ import java.util.UUID;
 
 public class SystemHelper {
 
+    public static String generateVerificationCode(){
+        return RandomStringUtils.randomNumeric(6).toUpperCase();
+    }
 
     public static String generateUsername() {
         StringBuffer data =

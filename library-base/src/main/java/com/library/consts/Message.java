@@ -19,4 +19,19 @@ public interface Message {
 
     String INCORRECT_CURRENT_PASSWORD = "incorrect.current.password";
 
+    String VERIFICATION_CODE_EMAIL_SUBJECT_RESET_PASSWORD = "verification.code.email.subject.reset.password";
+
+    String WELCOME_EMAIL_SUBJECT = "welcome.email.subject";
+
+    String TRY_AGAIN_LATER = "try.again.later";
+
+    String SEND_FAILED_TRY_AGAIN_TOMORROW = "send.failed.try.again.tomorrow";
+
+    String INVALID_VERIFICATION_CODE = "invalid.verification.code";
+
+    String SEND_SUCCESSFUL = "send.successful";
+
+    String PASSWORD_RESET_FAILED = "password.reset.failed";
+
+    String PASSWORD_RESET_SUCCESSFUL = "password.reset.successful";
 }
