@@ -34,4 +34,7 @@ public interface Message {
     String PASSWORD_RESET_FAILED = "password.reset.failed";
 
     String PASSWORD_RESET_SUCCESSFUL = "password.reset.successful";
+
+    String ORDER_CREATE_SUCCESSFUL = "order.create.success";
+
 }
