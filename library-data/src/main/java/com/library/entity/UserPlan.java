@@ -34,6 +34,6 @@ public class UserPlan {
     private Long my_order_id;
 
     @Enumerated(EnumType.STRING)
-    private IsActiveType is_active;
+    private IsActiveType isActive;
 
 }

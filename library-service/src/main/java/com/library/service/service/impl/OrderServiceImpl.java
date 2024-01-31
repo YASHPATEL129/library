@@ -16,6 +16,7 @@ import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ObjectUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,7 +63,6 @@ public class OrderServiceImpl implements OrderService {
         }
         PlanDetails planDetails = planDetailsRepository.findByPlanId(planId);
 
-//        int amt = Integer.parseInt(data.get("amount").toString());
         RazorpayClient client = new RazorpayClient(KEY, KEY_SECRET);
         JSONObject object = new JSONObject();
         object.put("amount", planDetails.getAmount());
@@ -120,26 +121,38 @@ public class OrderServiceImpl implements OrderService {
         return Map.of("status", isSuccess);
     }
 
+    @Override
+    public List<PlanDetails> getAllPlanDetails(HttpServletRequest request) {
+        try{
+            return planDetailsRepository.findAll();
+        }catch (Exception e){
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+
     private void setData(UserPlan userPlan, List<UserPlan> lastPlan , Optional<PlanDetails> planDetails){
         int month = planDetails.get().getMonths();
         if (lastPlan.isEmpty()){
-            userPlan.setIs_active(IsActiveType.CURRENT);
+            userPlan.setIsActive(IsActiveType.CURRENT);
             userPlan.setStartingDate(Instant.now().truncatedTo(ChronoUnit.DAYS));
             userPlan.setEndingDate(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(month * 30L, ChronoUnit.DAYS));
             return;
         }
-        switch (lastPlan.get(0).getIs_active()) {
+        switch (lastPlan.get(0).getIsActive()) {
             case UPCOMING,CURRENT -> {
-                userPlan.setIs_active(IsActiveType.UPCOMING);
+                userPlan.setIsActive(IsActiveType.UPCOMING);
                 userPlan.setStartingDate(lastPlan.get(0).getEndingDate());
                 userPlan.setEndingDate(userPlan.getStartingDate().plus(month * 30L, ChronoUnit.DAYS));
             }
             case EXPIRY -> {
-                userPlan.setIs_active(IsActiveType.CURRENT);
+                userPlan.setIsActive(IsActiveType.CURRENT);
                 userPlan.setStartingDate(Instant.now().truncatedTo(ChronoUnit.DAYS));
                 userPlan.setEndingDate(Instant.now().plus(month * 30L, ChronoUnit.DAYS));
             }
 
         }
     }
+
 }
