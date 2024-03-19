@@ -4,11 +4,16 @@ import com.library.consts.AppConfigs;
 import com.library.consts.ErrorKeys;
 import com.library.consts.Message;
 import com.library.entity.User;
+import com.library.entity.WebMessage;
 import com.library.enums.DeviceTypes;
+import com.library.enums.IsStatus;
+import com.library.interfaceProjections.UserProfileProjection;
 import com.library.pojo.EmailPayload;
 import com.library.pojo.response.AccountInfoResponse;
 import com.library.pojo.response.AuthResponse;
+import com.library.repository.UserPlanRepository;
 import com.library.repository.UserRepository;
+import com.library.repository.WebMessageRepository;
 import com.library.service.exception.ForbiddenException;
 import com.library.service.exception.InvalidCredentialsException;
 import com.library.service.exception.ValidationException;
@@ -20,9 +25,11 @@ import com.library.service.model.params.*;
 import com.library.service.service.AccountAndService;
 import com.library.service.service.VerificationCodeService;
 import com.library.utils.JwtUtil;
+import com.library.utils.MessageUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.antlr.v4.runtime.FailedPredicateException;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -52,6 +59,9 @@ public class AccountAndServiceImpl extends BaseService implements AccountAndServ
     private JwtUtil jwtUtil;
 
     @Autowired
+    private UserPlanRepository userPlanRepository;
+
+    @Autowired
     private UserSessionTrackerRepo userSessionTrackerRepo;
 
     @Autowired
@@ -59,6 +69,12 @@ public class AccountAndServiceImpl extends BaseService implements AccountAndServ
 
     @Autowired
     private EmailHelper emailUtil;
+
+    @Autowired
+    private WebMessageRepository webMessageRepository;
+
+    @Autowired
+    private MessageUtil messageUtil;
 
 
     @Override
@@ -105,6 +121,9 @@ public class AccountAndServiceImpl extends BaseService implements AccountAndServ
         accountInfoResponse.setLastName(user.getLastName());
         accountInfoResponse.setEmail(user.getEmail());
         accountInfoResponse.setContact(user.getContact());
+        UserProfileProjection plan = userPlanRepository.getUserProfileDetails(user.getUserName(), IsStatus.CURRENT.toString()).stream().findFirst().orElse(null);
+        if(ObjectUtils.isNotEmpty(plan))
+            accountInfoResponse.setPlanName(plan.getPlanName());
         return accountInfoResponse;
 
     }
@@ -168,6 +187,16 @@ public class AccountAndServiceImpl extends BaseService implements AccountAndServ
         throw new ForbiddenException(Message.PASSWORD_RESET_FAILED, ErrorKeys.PASSWORD_RESET_FAILED);
     }
 
+    @Override
+    public void getWebMessage(WebMessage webMessageReq, HttpServletRequest request, HttpServletResponse response) {
+        WebMessage webMessage = new WebMessage();
+        webMessage.setName(webMessageReq.getName());
+        webMessage.setEmail(webMessageReq.getEmail());
+        webMessage.setMessage(webMessageReq.getMessage());
+        webMessageRepository.save(webMessage);
+
+    }
+
     private void configureSession(String email , String deviceVerificationToken , String deviceType){
         UserSessionTracker session = userSessionTrackerRepo.getSession(email , deviceType);
             session = new UserSessionTracker();
@@ -197,7 +226,7 @@ public class AccountAndServiceImpl extends BaseService implements AccountAndServ
         Boolean isSend = emailUtil.send(new EmailPayload()
                 .setSendTo(param.getEmail())
                 .setTemplateCode(AppConfigs.WELCOME_TEMPLATE_HTML_KEY)
-                .setSubject(Message.WELCOME_EMAIL_SUBJECT)
+                .setSubject(messageUtil.getMessage(Message.WELCOME_EMAIL_SUBJECT,request.getLocale()))
                 .setProperties(emailProps));
         if (!isSend){
             throw new ForbiddenException(Message.TRY_AGAIN_LATER, ErrorKeys.TRY_AGAIN_LATER);

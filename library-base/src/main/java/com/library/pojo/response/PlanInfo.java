@@ -12,4 +12,6 @@ public class PlanInfo {
     private Long amount;
     private int months;
     private String planId;
+    private double pricePerMonth;
+    private String planTypes;
 }

@@ -6,8 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.library.entity.MyOrder;
 import com.library.entity.PlanDetails;
 import com.library.entity.UserPlan;
-import com.library.enums.IsActiveType;
+import com.library.enums.IsStatus;
 import com.library.pojo.CurrentSession;
+import com.library.pojo.response.PlanInfo;
 import com.library.repository.MyOrderRepository;
 import com.library.repository.PlanDetailsRepository;
 import com.library.repository.UserPlanRepository;
@@ -25,10 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -65,14 +64,14 @@ public class OrderServiceImpl implements OrderService {
 
         RazorpayClient client = new RazorpayClient(KEY, KEY_SECRET);
         JSONObject object = new JSONObject();
-        object.put("amount", planDetails.getAmount());
+        object.put("amount", planDetails.getAmount()*100);
         object.put("currency", CURRENT);
         //create new order
         Order order = client.orders.create(object);
         System.out.println(order);
         //save order in database
         MyOrder myOrder = new MyOrder();
-        myOrder.setAmount(String.valueOf(planDetails.getAmount()));
+        myOrder.setAmount(String.valueOf(planDetails.getAmount()*100));
         myOrder.setOrderId(order.get("id"));
         myOrder.setPaymentId(null);
         myOrder.setStatus("created");
@@ -122,9 +121,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<PlanDetails> getAllPlanDetails(HttpServletRequest request) {
+    public List<PlanInfo> getAllPlanDetails(HttpServletRequest request) {
         try{
-            return planDetailsRepository.findAll();
+            List<PlanDetails> allPlanDetails  = planDetailsRepository.findAllOrderedByPosition();
+            // Calculate price divided by month for each plan
+            List<PlanInfo> allPlans = allPlanDetails.stream()
+                    .map(planDetails -> {
+                        PlanInfo planInfo = toPlanInfo(planDetails);
+                        double pricePerMonth = (double) planDetails.getAmount() / planDetails.getMonths();
+                        String formattedPricePerMonth = String.format("%.2f", pricePerMonth);
+                        planInfo.setPricePerMonth(Double.parseDouble(formattedPricePerMonth));
+                        return planInfo;
+                    })
+                    .collect(Collectors.toList());
+ 
+            return allPlans;
         }catch (Exception e){
             e.printStackTrace();
             return Collections.emptyList();
@@ -135,19 +146,19 @@ public class OrderServiceImpl implements OrderService {
     private void setData(UserPlan userPlan, List<UserPlan> lastPlan , Optional<PlanDetails> planDetails){
         int month = planDetails.get().getMonths();
         if (lastPlan.isEmpty()){
-            userPlan.setIsActive(IsActiveType.CURRENT);
+            userPlan.setIsStatus(IsStatus.CURRENT);
             userPlan.setStartingDate(Instant.now().truncatedTo(ChronoUnit.DAYS));
             userPlan.setEndingDate(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(month * 30L, ChronoUnit.DAYS));
             return;
         }
-        switch (lastPlan.get(0).getIsActive()) {
+        switch (lastPlan.get(0).getIsStatus()) {
             case UPCOMING,CURRENT -> {
-                userPlan.setIsActive(IsActiveType.UPCOMING);
+                userPlan.setIsStatus(IsStatus.UPCOMING);
                 userPlan.setStartingDate(lastPlan.get(0).getEndingDate());
                 userPlan.setEndingDate(userPlan.getStartingDate().plus(month * 30L, ChronoUnit.DAYS));
             }
             case EXPIRY -> {
-                userPlan.setIsActive(IsActiveType.CURRENT);
+                userPlan.setIsStatus(IsStatus.CURRENT);
                 userPlan.setStartingDate(Instant.now().truncatedTo(ChronoUnit.DAYS));
                 userPlan.setEndingDate(Instant.now().plus(month * 30L, ChronoUnit.DAYS));
             }
@@ -155,4 +166,14 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    public static PlanInfo toPlanInfo(PlanDetails planDetails) {
+        PlanInfo planInfo = new PlanInfo();
+        planInfo.setId(planDetails.getId());
+        planInfo.setPlanName(planDetails.getPlanName());
+        planInfo.setAmount(planDetails.getAmount());
+        planInfo.setMonths(planDetails.getMonths());
+        planInfo.setPlanId(planDetails.getPlanId());
+        planInfo.setPlanTypes(planDetails.getPlanTypes());
+        return planInfo;
+    }
 }

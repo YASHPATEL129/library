@@ -28,8 +28,12 @@ public class ValidationException extends RuntimeException{
     public ValidationException(BindingResult bindingResult){
         if (bindingResult != null && bindingResult.getFieldError() != null &&
                 StringUtils.contains(bindingResult.getFieldError().getDefaultMessage(), "email")){
-            this.error = ErrorKeys.SERVER_ERROR;
-            this.messageCode = Message.SERVER_ERROR;
+            this.error = ErrorKeys.EMAIL_FAILED;
+            this.messageCode = Message.EMAIL_FAILED;
+        }else if (bindingResult != null && bindingResult.getFieldError() != null &&
+                StringUtils.contains(bindingResult.getFieldError().getDefaultMessage(), "password")){
+            this.error = ErrorKeys.PASSWORD_WEAK;
+            this.messageCode = Message.PASSWORD_WEAK;
         }else {
             this.error = ErrorKeys.SERVER_ERROR;
             this.messageCode = Message.SERVER_ERROR;

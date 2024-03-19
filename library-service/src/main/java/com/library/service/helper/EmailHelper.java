@@ -32,7 +32,7 @@ public class EmailHelper {
     public Boolean send(EmailPayload payload){
         try {
             MimeMessage message = sender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED, StandardCharsets.UTF_8.name());
             helper.setSubject(payload.getSubject());
             helper.setFrom(senderMail, senderName);
             helper.setTo(payload.getSendTo());

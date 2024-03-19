@@ -1,6 +1,6 @@
 package com.library.enums;
 
-public enum IsActiveType {
+public enum IsStatus {
 
     EXPIRY,
 

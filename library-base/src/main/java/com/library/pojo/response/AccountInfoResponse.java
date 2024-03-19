@@ -12,4 +12,5 @@ public class AccountInfoResponse {
     String lastName;
     String email;
     String contact;
+    String planName;
 }

@@ -1,39 +1,29 @@
 package com.library.entity;
 
-import com.library.enums.IsStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.util.Date;
 
-
+@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-@Entity
-@Table(name = "userPlan")
-public class UserPlan {
+public class WebMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String userName;
+   private String name;
 
-    private Integer plan_id;
+   private String email;
 
-    private  Instant StartingDate;
-
-    private Instant EndingDate;
-
-    private Long my_order_id;
-
-    @Enumerated(EnumType.STRING)
-    private IsStatus isStatus;
-
+   private String message;
 }

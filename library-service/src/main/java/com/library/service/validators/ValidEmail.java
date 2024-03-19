@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidEmail {
 
-    String message() default "";
+    String message() default "email failed";
 
     Class<?>[] groups() default {};
 

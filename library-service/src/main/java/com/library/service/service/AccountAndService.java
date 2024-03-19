@@ -1,5 +1,6 @@
 package com.library.service.service;
 
+import com.library.entity.WebMessage;
 import com.library.pojo.response.AccountInfoResponse;
 import com.library.pojo.response.AuthResponse;
 import com.library.service.model.params.*;
@@ -19,4 +20,6 @@ public interface AccountAndService {
         AccountInfoResponse changeInfo(ChangeInfoParam changeInfoParam , HttpServletRequest request , HttpServletResponse response);
 
         void resetPassword(ResetPasswordParam resetPasswordParam , HttpServletRequest request, HttpServletResponse response);
+
+        void getWebMessage(WebMessage webMessage, HttpServletRequest request , HttpServletResponse response);
 }

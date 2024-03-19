@@ -15,6 +15,6 @@ public interface OrderService {
 
     Map<String, Object> updateOrder(Map<String, Object> data) throws RazorpayException;
 
-    List<PlanDetails> getAllPlanDetails(HttpServletRequest request);
+    List<PlanInfo> getAllPlanDetails(HttpServletRequest request);
 
 }

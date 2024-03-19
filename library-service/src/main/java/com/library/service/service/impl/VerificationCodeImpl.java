@@ -66,12 +66,13 @@ public class VerificationCodeImpl implements VerificationCodeService {
 
         Map<String, Object> emailProps = new HashMap<String, Object>(){{
            put("subject", Message.VERIFICATION_CODE_EMAIL_SUBJECT_RESET_PASSWORD);
+            put("email", param.getEmail());
            put("verificationCode", generateVerificationCode(param, request));
         }};
         Boolean isSend = emailUtil.send(new EmailPayload()
                 .setSendTo(param.getEmail())
                 .setTemplateCode(AppConfigs.EMAIL_CODE_TEMPLATE_HTML_KEY)
-                .setSubject(Message.VERIFICATION_CODE_EMAIL_SUBJECT_RESET_PASSWORD)
+                .setSubject(messageUtil.getMessage(Message.VERIFICATION_CODE_EMAIL_SUBJECT_RESET_PASSWORD, request.getLocale()))
                 .setProperties(emailProps));
 
         if (!isSend){

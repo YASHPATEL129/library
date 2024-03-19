@@ -1,12 +1,12 @@
 package com.library.service.service.impl;
 
-import com.library.entity.MyOrder;
-import com.library.entity.PlanDetails;
 import com.library.entity.UserPlan;
-import com.library.enums.IsActiveType;
-import com.library.pojo.CurrentSession;
-import com.library.pojo.response.TransactionInfo;
+import com.library.enums.IsStatus;
 import com.library.interfaceProjections.TransactionInfoProjection;
+import com.library.interfaceProjections.UserProfileProjection;
+import com.library.pojo.CurrentSession;
+import com.library.pojo.response.IsStatusResponse;
+import com.library.pojo.response.PlanDetailsResponse;
 import com.library.repository.MyOrderRepository;
 import com.library.repository.PlanDetailsRepository;
 import com.library.repository.UserPlanRepository;
@@ -14,10 +14,10 @@ import com.library.service.service.UserPlanInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserPlanInfoImpl implements UserPlanInfo {
@@ -35,49 +35,26 @@ public class UserPlanInfoImpl implements UserPlanInfo {
     private PlanDetailsRepository planDetailsRepository;
 
     @Override
-    public List<UserPlan> getUserPlan(IsActiveType is_active) {
+    public List<IsStatusResponse> getUserPlan(IsStatus isStatus) {
         String userName = currentSession.getUserName();
-        return userPlanRepository.findByUserNameAndIsActive(userName, is_active);
+        return userPlanRepository.getUserProfileDetails(userName, isStatus.toString())
+                .stream().sorted(Comparator.comparing(UserProfileProjection::getStartingDate, Comparator.naturalOrder())).map(e -> new IsStatusResponse()
+                        .setStartingDate(e.getStartingDate())
+                        .setEndingDate(e.getEndingDate())
+                        .setPlanName(e.getPlanName())
+                        .setOrderId(e.getOrderId())).collect(Collectors.toList());
     }
 
-//    @Override
-//    public List<TransactionInfo> getUserTransactions(List<String> statusList) {
-//        String userName = currentSession.getUserName();
-//        List<String> allowedStates = Arrays.asList("success", "failed");
-//        List<MyOrder> myOrders = myOrderRepository.findByUserNameAndStatusIn(userName,allowedStates);
-//        List<TransactionInfo> transactionInfos = new ArrayList<>();
-//
-//        for (MyOrder myOrder : myOrders) {
-//            TransactionInfo transactionInfo = new TransactionInfo();
-//            transactionInfo.setMyOrderId(myOrder.getMyOrderId());
-//            transactionInfo.setOrderId(myOrder.getOrderId());
-//            transactionInfo.setAmount(myOrder.getAmount());
-//            transactionInfo.setUserName(userName);
-//            transactionInfo.setStatus(myOrder.getStatus());
-//            transactionInfo.setPaymentId(myOrder.getPaymentId());
-//            transactionInfo.setPaymentDate(myOrder.getPaymentDate());
-//            transactionInfo.setPlan_id(myOrder.getPlan_id());
-//            transactionInfo.setCreatedTime(myOrder.getCreatedTime());
-//
-//            if (myOrder.getPlan_id() != null) {
-//                Optional<PlanDetails> planDetailsOptional = planDetailsRepository.findById(myOrder.getPlan_id());
-//                if (planDetailsOptional.isPresent()) {
-//                    PlanDetails planDetails = planDetailsOptional.get();
-//                    transactionInfo.setPlanName(planDetails.getPlanName());
-//                    transactionInfo.setMonths(planDetails.getMonths());
-//                    transactionInfo.setPlanId(planDetails.getPlanId());
-//                }
-//            }
-//            transactionInfos.add(transactionInfo);
-//        }
-//        System.out.println(transactionInfos);
-//        return transactionInfos;
-//    }
-
     @Override
-    public List<TransactionInfoProjection> getOrdersWithPlanDetails(List<String> statusList) {
+    public List<PlanDetailsResponse> getOrdersWithPlanDetails(List<String> statusList) {
         String userName = currentSession.getUserName();
         List<String> allowedStates = Arrays.asList("success", "failed");
-        return myOrderRepository.findOrdersWithPlanDetails(userName,allowedStates);
+        return myOrderRepository.findOrdersWithPlanDetails(userName,allowedStates)
+                .stream().sorted(Comparator.comparing(TransactionInfoProjection::getPayment_date, Comparator.naturalOrder())).map(e -> new PlanDetailsResponse()
+                        .setOrderId(e.getOrder_id())
+                        .setPlanName(e.getPlan_name())
+                        .setStatus(e.getStatus())
+                        .setAmount(e.getAmount())
+                        .setPaymentDate(e.getPayment_date())).collect(Collectors.toList());
     }
 }

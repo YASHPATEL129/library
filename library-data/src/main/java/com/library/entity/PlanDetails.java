@@ -27,4 +27,8 @@ public class PlanDetails {
     private int months;
 
     private String planId;
+
+    private int position;
+
+    private String planTypes;
 }

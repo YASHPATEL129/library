@@ -5,7 +5,7 @@ public interface Message {
 
     String SERVER_ERROR = "server.error";
 
-    String SUCCESS = "success";
+    String CREATE_SUCCESSFUL = "create.success";
 
     String INCORRECT_ACCOUNT_OR_PASSWORD = "incorrect.account.or.password";
 
@@ -37,4 +37,9 @@ public interface Message {
 
     String ORDER_CREATE_SUCCESSFUL = "order.create.success";
 
+    String EMAIL_FAILED = "email.failed";
+
+    String PASSWORD_WEAK = "password.weak";
+
+    String LOGIN_SUCCESSFUL = "login.successful";
 }

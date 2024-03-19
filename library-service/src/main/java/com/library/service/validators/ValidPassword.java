@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPassword {
 
-    String message() default "";
+    String message() default "password is weak";
 
     Class<?>[] groups() default {};
 
