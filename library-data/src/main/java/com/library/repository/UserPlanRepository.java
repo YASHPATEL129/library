@@ -1,11 +1,8 @@
 package com.library.repository;
 
 
-import com.library.entity.User;
 import com.library.entity.UserPlan;
-import com.library.enums.IsStatus;
 import com.library.interfaceProjections.UserProfileProjection;
-import com.library.pojo.response.IsStatusResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,9 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface UserPlanRepository extends JpaRepository<UserPlan,Long> {
@@ -32,7 +27,7 @@ public interface UserPlanRepository extends JpaRepository<UserPlan,Long> {
             "    WHEN CURRENT_DATE = up.starting_date AND up.is_status = 'UPCOMING' THEN 'CURRENT' " +
             "    ELSE UP.is_status " +
             "    END " +
-            "WHERE isStatus IN ('UPCOMING', 'CURRENT')")
+            "WHERE is_status IN ('UPCOMING', 'CURRENT')")
     void updateIsActiveBasedOnDate();
 
 
